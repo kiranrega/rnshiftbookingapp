@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {Alert, StyleSheet, Text, View, ActivityIndicator} from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import {FormattedDataItem} from '../utils/types';
+import {baseUrl} from '../utils/config';
 
 interface ShiftItemProps {
   item: FormattedDataItem;
@@ -14,12 +15,9 @@ const ShiftItem: React.FC<ShiftItemProps> = ({item, availableShifts}) => {
   const bookShift = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(
-        `https://db2c-115-97-190-116.ngrok-free.app/shifts/${item.id}/book`,
-        {
-          method: 'POST',
-        },
-      );
+      const response = await fetch(`${baseUrl}/${item.id}/book`, {
+        method: 'POST',
+      });
       const data = await response.json();
       setIsLoading(false);
       // Handle the response data if needed
@@ -32,12 +30,9 @@ const ShiftItem: React.FC<ShiftItemProps> = ({item, availableShifts}) => {
   const cancelShift = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(
-        `https://db2c-115-97-190-116.ngrok-free.app/shifts/${item.id}/cancel`,
-        {
-          method: 'POST',
-        },
-      );
+      const response = await fetch(`${baseUrl}/${item.id}/${item.id}/cancel`, {
+        method: 'POST',
+      });
       const data = await response.json();
       setIsLoading(false);
       // Handle the response data if needed

@@ -1,6 +1,7 @@
 import {useState, useEffect} from 'react';
 import {FormattedData, RawData} from '../utils/types';
 import formatData from '../utils/formdata';
+import {baseUrl} from '../utils/config';
 
 const useFetchAndFormatData = () => {
   const [data, setData] = useState<FormattedData | null>(null);
@@ -10,9 +11,7 @@ const useFetchAndFormatData = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(
-          'https://db2c-115-97-190-116.ngrok-free.app/shifts',
-        );
+        const response = await fetch(baseUrl);
         const jsonData: RawData[] = await response.json();
         const formattedData = formatData(jsonData);
         setData(formattedData);
