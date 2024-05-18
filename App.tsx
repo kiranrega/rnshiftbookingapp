@@ -1,118 +1,116 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import * as React from 'react';
+import {NavigationContainer} from '@react-navigation/native';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
+import AvailableShifts from './src/Screens/AvailableShifts';
+import MyShifts from './src/Screens/MyShifts';
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import useFetchAndFormatData from './src/hooks/useFetchAndFormatData';
+import {filterEventsByLocation} from './src/utils/filteredLocation';
+import {StyleSheet} from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+const TopTab = createMaterialTopTabNavigator();
+const BottomTab = createBottomTabNavigator();
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+function HomeTopTabs() {
+  const {data} = useFetchAndFormatData();
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+  const helsinkiShifts = data && filterEventsByLocation(data, 'helsinki');
+  const tampereShifts = data && filterEventsByLocation(data, 'tampere');
+  const turkuShifts = data && filterEventsByLocation(data, 'turku');
+
+  const helsinkiShiftsCount = helsinkiShifts
+    ? Object.values(helsinkiShifts).flat().length
+    : 0;
+  const tampereShiftsCount = tampereShifts
+    ? Object.values(tampereShifts).flat().length
+    : 0;
+  const turkuShiftsCount = turkuShifts
+    ? Object.values(turkuShifts).flat().length
+    : 0;
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
+    <TopTab.Navigator
+      screenOptions={{
+        animationEnabled: true,
+        tabBarLabelStyle: styles.tabBarStyle,
+        tabBarActiveTintColor: '#004FB4',
+        tabBarInactiveTintColor: '#CBD2E1',
+        tabBarIndicatorStyle: {display: 'none'},
+        tabBarStyle: {
+          elevation: 0,
+        },
+      }}>
+      <TopTab.Screen
+        name={`Helsinki (${helsinkiShiftsCount})`}
+        component={AvailableShifts}
+        initialParams={{name: 'helsinki'}}
+      />
+      <TopTab.Screen
+        name={`Tampere (${tampereShiftsCount})`}
+        component={AvailableShifts}
+        initialParams={{name: 'tampere'}}
+      />
+      <TopTab.Screen
+        name={`Turku (${turkuShiftsCount})`}
+        component={AvailableShifts}
+        initialParams={{name: 'turku'}}
+      />
+    </TopTab.Navigator>
   );
 }
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
+function BottomTabs() {
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
+    <BottomTab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarIconStyle: {display: 'none'},
+        tabBarHideOnKeyboard: true,
+        tabBarActiveTintColor: '#004FB4',
+        tabBarInactiveTintColor: '#CBD2E1',
+        tabBarLabelStyle: styles.bottomBarLabelStyle,
+      }}>
+      <BottomTab.Screen
+        name="My Shifts"
+        component={MyShifts}
+        options={{
+          tabBarLabel: 'My Shifts',
+        }}
       />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+      <BottomTab.Screen
+        name="Available Shifts"
+        component={HomeTopTabs}
+        options={{
+          tabBarLabel: 'Available Shifts',
+          headerShown: false,
+        }}
+      />
+    </BottomTab.Navigator>
+  );
+}
+
+export default function App() {
+  return (
+    <GestureHandlerRootView>
+      <NavigationContainer>
+        <BottomTabs />
+      </NavigationContainer>
+    </GestureHandlerRootView>
   );
 }
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  tabBarStyle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    textTransform: 'capitalize',
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
+  bottomBarLabelStyle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 15,
   },
 });
-
-export default App;
